@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon événement & Suivi des Vols</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
@@ -25,6 +30,7 @@
         <div class="tabs">
             <button class="tab-button active" data-tab="home">Accueil</button>
             <button class="tab-button" data-tab="flights">Suivi des Vols</button>
+            <button class="tab-button" data-tab="live-map">Carte des vols en direct</button>
         </div>
 
         <div id="home" class="tab-content active">
@@ -133,6 +139,21 @@
                 </div>
             </section>
         </div>
+
+        <div id="live-map" class="tab-content">
+            <section class="card live-map-section">
+                <h2>Carte des vols en direct</h2>
+                <p>Visualisation des vols en temps réel dans une zone donnée.</p>
+                <div class="map-controls">
+                    <label for="zoomLevel">Niveau de zoom :</label>
+                    <input type="range" id="zoomLevel" min="1" max="10" value="5">
+                    <span id="currentZoom">5</span>
+                    <button id="resetMapBtn" class="btn">Réinitialiser la vue</button>
+                </div>
+                <div id="liveFlightMap" style="height: 800px; width: 100%;"></div>
+                <div class="message" id="liveMapMessage"></div>
+            </section>
+        </div>
     </div>
 </main>
 
@@ -140,24 +161,11 @@
     <p>&copy; 2025 Mon Site Sympathique. Tous droits réservés.</p>
 </footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
 <script src="./js/quizData.js"></script>
 <script src="./js/script.js"></script>
-document.addEventListener('DOMContentLoaded', () => {
-const tabButtons = document.querySelectorAll('.tab-button');
-const tabContents = document.querySelectorAll('.tab-content');
-
-tabButtons.forEach(button => {
-button.addEventListener('click', () => {
-// Supprime la classe 'active' de tous les boutons et contenus
-tabButtons.forEach(btn => btn.classList.remove('active'));
-tabContents.forEach(content => content.classList.remove('active'));
-
-// Ajoute la classe 'active' au bouton cliqué et au contenu correspondant
-button.classList.add('active');
-const targetTab = button.dataset.tab;
-document.getElementById(targetTab).classList.add('active');
-});
-});
-});
 </body>
 </html>
