@@ -22,8 +22,9 @@ body {
     width: 100%;
 }
 
-h1, h2 {
+h1, h2, h3 {
     color: #0056b3;
+    margin-top: 25px; /* Ajout pour espacer les nouvelles sections */
 }
 
 .countdown {
@@ -42,4 +43,27 @@ h1, h2 {
     font-size: 0.9em;
     color: #666;
     margin-top: 5px;
+    margin-bottom: 20px; /* Ajout pour espacer des sections suivantes */
+}
+
+/* Nouveaux styles pour la météo */
+.weather-info {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+.weather-description {
+    text-transform: capitalize; /* Met la première lettre en majuscule */
+    margin-right: 5px;
+}
+
+.temperature {
+    font-weight: bold;
+    color: #3f7b24; /* Couleur pour la température */
+}
+
+.sun-times {
+    font-size: 0.95em;
+    color: #555;
+    margin-bottom: 20px;
 }
