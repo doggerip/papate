@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon événement & Suivi des Vols</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
 <header class="hero-section">
@@ -140,27 +140,24 @@
     <p>&copy; 2025 Mon Site Sympathique. Tous droits réservés.</p>
 </footer>
 
-<script src="js/quizData.js"></script>
-<script src="js/script.js"></script>
-<script>
-    // JavaScript pour la gestion des onglets
-    document.addEventListener('DOMContentLoaded', () => {
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
+<script src="./js/quizData.js"></script>
+<script src="./js/script.js"></script>
+document.addEventListener('DOMContentLoaded', () => {
+const tabButtons = document.querySelectorAll('.tab-button');
+const tabContents = document.querySelectorAll('.tab-content');
 
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Supprime la classe 'active' de tous les boutons et contenus
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
+tabButtons.forEach(button => {
+button.addEventListener('click', () => {
+// Supprime la classe 'active' de tous les boutons et contenus
+tabButtons.forEach(btn => btn.classList.remove('active'));
+tabContents.forEach(content => content.classList.remove('active'));
 
-                // Ajoute la classe 'active' au bouton cliqué et au contenu correspondant
-                button.classList.add('active');
-                const targetTab = button.dataset.tab;
-                document.getElementById(targetTab).classList.add('active');
-            });
-        });
-    });
-</script>
+// Ajoute la classe 'active' au bouton cliqué et au contenu correspondant
+button.classList.add('active');
+const targetTab = button.dataset.tab;
+document.getElementById(targetTab).classList.add('active');
+});
+});
+});
 </body>
 </html>

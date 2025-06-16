@@ -685,6 +685,7 @@ function updateFlightTableHeaders(mode) {
 }
 
 // --- Initialisation et gestionnaires d'événements ---
+// --- Initialisation et gestionnaires d'événements ---
 document.addEventListener('DOMContentLoaded', () => {
     // --- Initialisation des éléments non-vol ---
     updateCountdown();
@@ -697,17 +698,14 @@ document.addEventListener('DOMContentLoaded', () => {
     displayDailyExpression();
 
     // Démarrer les intervalles d'actualisation
-    const countdownInterval = setInterval(updateCountdown, 1000); // Déclare countdownInterval ici
+    countdownInterval = setInterval(updateCountdown, 1000); // Variable globale `countdownInterval` est assignée ici
     setInterval(updateTimes, 1000);
     setInterval(updateProgressBar, 1000);
     setInterval(updateMessages, 1000);
     setInterval(updateTimeIcons, 1000);
 
-
     // --- Initialisation des éléments de suivi des vols ---
-    // Mettre à jour les en-têtes par défaut au chargement (pour les vols en direct)
     updateFlightTableHeaders('live');
-
 
     if (searchFlightBtn) {
         searchFlightBtn.addEventListener('click', () => {
@@ -725,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
         airportButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const icao = button.dataset.icao;
-                const type = button.dataset.type; // 'departure' ou 'arrival'
+                const type = button.dataset.type;
                 if (icao && type) {
                     searchAirportLogs(icao, type);
                 }
@@ -747,4 +745,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Afficher un message initial pour les vols
     showMessage(searchMessage, "Entrez un indicatif d'appel ou choisissez un aéroport pour voir les vols.", 'info');
+
+    // --- Logique de gestion des onglets intégrée ici ---
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Supprime la classe 'active' de tous les boutons et contenus
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Ajoute la classe 'active' au bouton cliqué et au contenu correspondant
+            button.classList.add('active');
+            const targetTab = button.dataset.tab;
+            const targetContent = document.getElementById(targetTab);
+            if (targetContent) { // Vérification pour s'assurer que l'élément existe
+                targetContent.classList.add('active');
+            } else {
+                console.error(`Contenu de l'onglet avec l'ID "${targetTab}" introuvable.`);
+            }
+        });
+    });
+
+    // Initialisation au chargement de la page : Afficher l'onglet "Accueil" par défaut
+    const defaultTabButton = document.querySelector('.tab-button.active');
+    if (defaultTabButton) {
+        const defaultTargetTab = defaultTabButton.dataset.tab;
+        const defaultTargetContent = document.getElementById(defaultTargetTab);
+        if (defaultTargetContent) {
+            defaultTargetContent.classList.add('active');
+        }
+    } else {
+        // Si aucun onglet n'a la classe active, active le premier par défaut
+        if (tabButtons.length > 0) {
+            tabButtons[0].classList.add('active');
+            if (tabContents.length > 0) {
+                tabContents[0].classList.add('active');
+            }
+        }
+    }
 });
