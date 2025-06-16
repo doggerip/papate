@@ -272,6 +272,33 @@ function displayRandomFunStat() {
         funStatTextEl.textContent = funStats[randomIndex];
     }
 }
+const englishExpressionEl = document.getElementById('english-expression');
+const frenchTranslationEl = document.getElementById('french-translation');
+const revealTranslationBtn = document.getElementById('reveal-translation-btn');
+
+function displayDailyExpression() {
+    if (!englishExpressionEl || !frenchTranslationEl || !revealTranslationBtn || !englishExpressions || englishExpressions.length === 0) {
+        console.error("Éléments d'expression ou données introuvables.");
+        return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * englishExpressions.length);
+    const dailyExpression = englishExpressions[randomIndex];
+
+    englishExpressionEl.textContent = dailyExpression.expression;
+    frenchTranslationEl.textContent = "Cliquez pour voir la traduction...";
+    frenchTranslationEl.style.color = 'transparent'; // Pour cacher le texte initialement
+    frenchTranslationEl.style.textShadow = '0 0 8px #333'; // Effet de flou
+    revealTranslationBtn.style.display = 'block';
+
+    revealTranslationBtn.onclick = () => {
+        frenchTranslationEl.textContent = dailyExpression.translation;
+        frenchTranslationEl.style.color = ''; // Révéler la couleur
+        frenchTranslationEl.style.textShadow = 'none'; // Enlever le flou
+        revealTranslationBtn.style.display = 'none';
+    };
+}
+
 
 
 // --- Initialisation et boucles ---
@@ -292,6 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTimeIcons();
     loadQuizQuestions(); // Charger la première question du quiz au démarrage
     displayRandomFunStat(); // Charger une statistique amusante au démarrage
+    displayDailyExpression();
     // Initialiser le mini-jeu ici si vous en avez un (fonction 'initGame' par exemple)
 });
 
