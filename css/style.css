@@ -377,3 +377,101 @@ body.night-background {
         flex: 1 1 100%; /* Une carte par ligne sur les petits écrans */
     }
 }
+
+.flight-tracker-section {
+    padding: 20px;
+    margin: 20px auto;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-width: 900px; /* Plus large pour le tableau */
+    text-align: center;
+}
+
+.flight-search-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-controls, .filter-buttons {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap; /* Permet aux boutons de s'enrouler sur plusieurs lignes */
+    justify-content: center;
+    gap: 10px; /* Espacement entre les éléments */
+}
+
+#flightNumberInput {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex-grow: 1; /* Permet à l'input de prendre plus de place */
+    max-width: 300px;
+}
+
+.btn { /* Style général pour les boutons, si non défini */
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.filter-buttons .btn {
+    background-color: #28a745;
+}
+
+.filter-buttons .btn:hover {
+    background-color: #218838;
+}
+
+.status-message {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.flight-results-container {
+    overflow-x: auto; /* Permet le défilement horizontal si le tableau est trop large */
+    margin-top: 20px;
+}
+
+.flight-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.flight-table th, .flight-table td {
+    border: 1px solid #ddd;
+    padding: 10px 8px;
+    text-align: left;
+}
+
+.flight-table th {
+    background-color: #e2e2e2;
+    font-weight: bold;
+    color: #333;
+}
+
+.flight-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.flight-table tbody tr:hover {
+    background-color: #e9e9e9;
+}
+
+#noFlightResults {
+    color: #666;
+    font-style: italic;
+}

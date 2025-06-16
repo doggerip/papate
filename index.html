@@ -64,6 +64,16 @@
         </div>
     </section>
 
+    <section class="game-section">
+        <h2>Mini-jeu : Devinette Numérique</h2>
+        <p>Devine un nombre entre 1 et 10 :</p>
+        <div class="game-controls">
+            <input type="number" id="guessInput" min="1" max="10" placeholder="Ton chiffre">
+            <button onclick="checkGuess()">Valider</button>
+        </div>
+        <p class="game-result" id="guessResult"></p>
+    </section>
+
     <section class="daily-expression-section">
         <h2>Expression du Jour (Anglais)</h2>
         <div class="expression-card">
@@ -74,14 +84,30 @@
         </div>
     </section>
 
-    <section class="game-section">
-        <h2>Mini-jeu : Devinette Numérique</h2>
-        <p>Devine un nombre entre 1 et 10 :</p>
-        <div class="game-controls">
-            <input type="number" id="guessInput" min="1" max="10" placeholder="Ton chiffre">
-            <button onclick="checkGuess()">Valider</button>
+    <section class="flight-tracker-section">
+        <h2>Suivi des Vols en Temps Réel</h2>
+        <div class="flight-search-card">
+            <p>Cherchez un vol par son numéro (ex: AFR123) ou affichez les vols au départ/arrivée de Nantes ou Montréal.</p>
+            <div class="search-controls">
+                <input type="text" id="flightNumberInput" placeholder="Numéro de vol (ex: AFR123)">
+                <button id="searchFlightBtn" class="btn">Rechercher Vol</button>
+            </div>
+            <div class="filter-buttons">
+                <button id="showNantesDeparturesBtn" class="btn">Départs de Nantes</button>
+                <button id="showMontrealDeparturesBtn" class="btn">Départs de Montréal</button>
+            <p id="flightStatusMessage" class="status-message"></p>
+            <div class="flight-results-container">
+                <table id="flightResultsTable" class="flight-table">
+                    <thead>
+                    <tr>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <p id="noFlightResults" style="display:none; text-align: center; padding: 20px;">Aucun vol trouvé pour votre recherche.</p>
+            </div>
         </div>
-        <p class="game-result" id="guessResult"></p>
     </section>
 </main>
 
