@@ -46,10 +46,14 @@
         </div>
     </section>
 
-    <section class="daily-fact-section">
-        <h2>Le Fait du Jour</h2>
-        <div class="daily-fact-card">
-            <p id="dailyFactText">Chargement du fait du jour...</p>
+    <section class="daily-quiz-section">
+        <h2>Quiz du Jour : Le Saviez-Vous ?</h2>
+        <div class="quiz-card">
+            <p id="quiz-question">Chargement de la question...</p>
+            <div class="quiz-options" id="quiz-options">
+            </div>
+            <p class="quiz-result" id="quiz-result"></p>
+            <button id="next-question-btn" style="display:none;">Question Suivante</button>
         </div>
     </section>
 
@@ -74,9 +78,7 @@
 <footer class="footer">
     <p>&copy; 2025 Mon Site Sympathique. Tous droits réservés.</p>
 </footer>
-
-<div id="background-particles"></div>
-
+<script src="js/quizData.js"></script>
 <script src="js/script.js"></script>
 </body>
 </html>

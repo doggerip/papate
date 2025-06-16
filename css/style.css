@@ -1,90 +1,217 @@
-/* --- Variables CSS --- */
+/* Variables CSS pour faciliter les changements de thème */
 :root {
-    --primary-color: #4CAF50; /* Vert pomme */
-    --secondary-color: #00BCD4; /* Turquoise */
-    --accent-color: #FFC107; /* Ambre */
-    --text-dark: #333;
-    --text-light: #f4f4f4;
-    --bg-light: #fcfcfc;
-    --bg-dark: #263238;
-    --shadow-light: rgba(0, 0, 0, 0.1);
-    --shadow-medium: rgba(0, 0, 0, 0.15);
-    --border-radius-card: 15px;
-    --padding-card: 25px;
+    --primary-color: #2196F3; /* Bleu standard */
+    --secondary-color: #64B5F6; /* Bleu clair */
+    --accent-color: #1976D2; /* Bleu foncé */
+
+    /* Couleurs des icônes pour le mode jour/clair */
+    --morning-icon-color: #FFD700;
+    --day-icon-color: #FFD700;
+    --evening-icon-color: #FFA07A;
+    --night-icon-color: #ADD8E6;
 }
 
-/* --- Global Reset & Body Styles --- */
-* {
-    box-sizing: border-box;
+/* Styles généraux pour le body */
+body {
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-}
-
-body {
-    font-family: 'Poppins', sans-serif; /* Police plus moderne */
-    color: var(--text-dark);
-    line-height: 1.6;
+    color: #333;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    transition: background-color 1s ease-in-out; /* Douce transition pour le fond */
-    background: linear-gradient(135deg, #87CEEB, #A7D9F5); /* Par défaut jour */
+    /* Transition fluide entre les backgrounds */
+    transition: background-image 2s ease-in-out, background-color 2s ease-in-out;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Pour garder l'image fixe au scroll */
 }
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+/* --- STYLES POUR LE BODY BACKGROUNDS DYNAMIQUES --- */
 
-/* --- Header / Hero Section --- */
+/* Matin (par exemple, 5h-10h) */
+body.morning-background {
+    background-image: linear-gradient(to bottom, #FFDAB9, #ADD8E6); /* Aube: orange doux vers bleu clair */
+}
+
+/* Jour (par exemple, 10h-17h) */
+body.day-background {
+    background-image: linear-gradient(to bottom, #87CEEB, #FFFFFF); /* Ciel bleu clair vers blanc */
+}
+
+/* Soir (par exemple, 17h-22h) */
+body.evening-background {
+    background-image: linear-gradient(to bottom, #FF7F50, #4682B4); /* Crépuscule: corail vers bleu acier */
+}
+
+/* Nuit (par exemple, 22h-5h) */
+body.night-background {
+    background-image: linear-gradient(to bottom, #0A1128, #182848); /* Nuit profonde: bleu très foncé */
+    color: #f0f0f0; /* Texte clair pour la nuit */
+}
+
+/* Ajustements de couleur de texte et de fond pour les sections principales en mode nuit */
+body.night-background .hero-content,
+body.night-background .main-content h2,
+body.night-background .zone-card,
+body.night-background .quiz-card,
+body.night-background .fun-stats-card,
+body.night-background .game-section,
+body.night-background .footer {
+    color: #e0e0e0;
+}
+
+body.night-background .zone-card,
+body.night-background .quiz-card,
+body.night-background .fun-stats-card,
+body.night-background .game-section .game-controls input,
+body.night-background .game-section .game-controls button {
+    background-color: rgba(30, 45, 65, 0.8); /* Fond plus sombre pour les cartes */
+    border-color: rgba(70, 90, 110, 0.5);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Redéfinition des variables pour le mode nuit */
+body.night-background {
+    --primary-color: #42A5F5;
+    --secondary-color: #90CAF9;
+    --accent-color: #1565C0;
+
+    --morning-icon-color: #90CAF9; /* Plus clair la nuit */
+    --day-icon-color: #E0E0E0;
+    --evening-icon-color: #FFECB3;
+    --night-icon-color: #FFFFFF;
+}
+
+/* --- STYLES POUR LE QUIZ --- */
+.daily-quiz-section {
+    padding: 20px;
+    text-align: center;
+}
+
+.quiz-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.quiz-card p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espace entre les boutons */
+    margin-bottom: 20px;
+}
+
+.quiz-options button {
+    background-color: var(--secondary-color, #64B5F6); /* Bleu clair par défaut */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    width: 100%;
+    text-align: left; /* Alignement du texte à gauche */
+}
+
+.quiz-options button:hover {
+    background-color: var(--primary-color, #42A5F5); /* Bleu plus foncé au survol */
+    transform: translateY(-2px);
+}
+
+.quiz-options button.correct {
+    background-color: #4CAF50; /* Vert pour la bonne réponse */
+}
+
+.quiz-options button.wrong {
+    background-color: #F44336; /* Rouge pour la mauvaise réponse */
+}
+
+.quiz-options button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.quiz-result {
+    font-weight: bold;
+    margin-top: 15px;
+    min-height: 1.5em; /* Pour éviter le décalage quand le texte apparaît */
+}
+
+#nextQuestionButton {
+    background-color: var(--primary-color, #2196F3);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+#nextQuestionButton:hover {
+    background-color: var(--accent-color, #1976D2);
+}
+
+
+/* Vos autres styles existants (hero-section, countdown, zone-cards, etc.) */
+
+/* Hero Section */
 .hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://source.unsplash.com/random/1600x600/?nature,sky') center/cover no-repeat;
-    color: var(--text-light);
+    background-color: rgba(0, 0, 0, 0.4); /* Overlay pour lisibilité */
     padding: 60px 20px;
     text-align: center;
-    border-bottom-left-radius: var(--border-radius-card);
-    border-bottom-right-radius: var(--border-radius-card);
-    box-shadow: 0 4px 20px var(--shadow-medium);
+    color: white;
+    position: relative; /* Pour que le z-index fonctionne */
+    z-index: 1; /* S'assurer qu'il est au-dessus du background */
 }
 
 .hero-content h1 {
-    font-size: 3em;
+    font-size: 2.8em;
     margin-bottom: 10px;
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero-content p {
     font-size: 1.2em;
     margin-bottom: 20px;
-    opacity: 0.9;
 }
 
 .countdown {
-    font-size: 3.5em;
-    font-weight: 700;
-    margin: 20px 0 30px;
-    color: var(--accent-color);
-    text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-    letter-spacing: 2px;
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #FFEB3B; /* Jaune vif pour le compte à rebours */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* --- Progress Bar --- */
 .progress-container {
     width: 80%;
-    max-width: 400px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
-    height: 18px;
-    margin: 0 auto 10px;
+    max-width: 500px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    height: 20px;
+    margin: 10px auto 5px;
     overflow: hidden;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .progress-bar {
     height: 100%;
-    width: 0;
-    background: linear-gradient(90deg, #64ffda, #1de9b6);
-    border-radius: 15px;
-    transition: width 1s ease-out;
+    width: 0%;
+    background-color: #4CAF50; /* Vert pour la progression */
+    border-radius: 10px;
+    transition: width 0.5s ease-out;
 }
 
 .progress-text {
@@ -92,316 +219,161 @@ body {
     opacity: 0.8;
 }
 
-/* --- Main Content --- */
+/* Main Content */
 .main-content {
     flex-grow: 1;
-    padding: 30px 20px;
-    max-width: 960px;
-    margin: 30px auto;
+    padding: 20px;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.main-content section {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
 }
 
 .main-content h2 {
-    font-size: 2em;
-    color: var(--primary-color);
-    text-align: center;
-    margin-bottom: 40px;
-    position: relative;
+    color: var(--primary-color, #2196F3);
+    margin-bottom: 15px;
+    font-size: 1.8em;
 }
 
-.main-content h2::after {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 3px;
-    background: var(--secondary-color);
-    margin: 10px auto 0;
-    border-radius: 5px;
-}
-
-/* --- Zone Cards --- */
-.zone-cards-wrapper {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
-    margin-bottom: 50px;
+/* Time Zones Section */
+.time-zones-section .zone-cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
 }
 
 .zone-card {
-    background: var(--bg-light); /* Fond de carte par défaut, neutre */
-    border-radius: var(--border-radius-card);
-    box-shadow: 0 8px 25px var(--shadow-light);
-    padding: var(--padding-card);
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative; /* Important pour positionner l'icône */
-    overflow: hidden;
-    min-height: 180px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    flex: 1 1 calc(50% - 20px); /* Deux cartes par ligne sur desktop */
+    min-width: 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
 }
 
-.zone-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 35px var(--shadow-medium);
-}
-
-.zone-header {
+.zone-card .zone-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-bottom: 15px;
-    gap: 10px;
+    margin-bottom: 10px;
 }
 
-.zone-header .icon {
-    font-size: 1.8em;
-    color: var(--secondary-color);
+.zone-card .zone-header .icon {
+    font-size: 1.5em;
+    color: var(--primary-color, #2196F3);
+    margin-right: 10px;
 }
 
-.zone-card h3 {
-    font-size: 1.6em;
-    color: var(--primary-color);
-    font-weight: 600;
+.zone-card .zone-name {
+    font-size: 1.3em;
     margin: 0;
+    color: #333;
 }
 
-.time-display {
-    font-size: 2.2em;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 15px;
+.zone-card .time-display {
+    font-size: 2em;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 10px;
 }
 
-.message {
+.zone-card .message {
     font-style: italic;
-    color: #666;
-    font-size: 0.95em;
-    padding-top: 10px;
-    border-top: 1px dashed #eee;
+    color: #777;
+    margin-bottom: 10px;
 }
 
-/* --- Icônes de temps animées --- */
 .time-icon {
-    position: absolute;
-    bottom: 15px; /* Positionne l'icône en bas */
-    right: 15px; /* Garde la position à droite */
-    font-size: 3em; /* Taille de l'icône */
-    opacity: 0.7; /* Légèrement transparente pour ne pas dominer */
-    transition: color 0.5s ease, transform 0.5s ease; /* Transition pour les changements de couleur/animation */
+    font-size: 2.5em;
+    margin-top: 10px;
+    /* Les couleurs spécifiques sont définies par les classes morning/day/evening/night en JS */
 }
 
-/* Animations d'icônes spécifiques */
-
-/* Animation générique de "flottement" */
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0px); }
-}
-
-/* Animation de "rotation" légère pour le soleil */
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* Styles des icônes par période */
-/* Matin - Soleil levant ou aube */
-.time-icon.morning {
-    color: #FFC107; /* Jaune ambre */
-    animation: float 2s ease-in-out infinite alternate;
-}
-
-/* Jour - Soleil */
-.time-icon.day {
-    color: #FFEB3B; /* Jaune vif */
-    animation: spin 10s linear infinite, float 2s ease-in-out infinite alternate;
-}
-
-/* Soir - Lune ou étoiles au crépuscule */
-.time-icon.evening {
-    color: #9C27B0; /* Violet foncé */
-    animation: float 2.5s ease-in-out infinite alternate;
-}
-
-/* Nuit - Étoiles ou lune */
-.time-icon.night {
-    color: #E0F7FA; /* Bleu très clair, presque blanc */
-    animation: float 3s ease-in-out infinite alternate;
-}
-
-/* --- Nouvelle section "Fait du Jour" --- */
-.daily-fact-section {
-    background: var(--bg-light);
-    border-radius: var(--border-radius-card);
-    box-shadow: 0 8px 25px var(--shadow-light);
-    padding: var(--padding-card);
-    text-align: center;
-    margin-bottom: 50px; /* Espace après cette section */
-}
-
-.daily-fact-section h2 {
-    font-size: 2em;
-    color: var(--primary-color);
-    text-align: center;
-    margin-bottom: 20px; /* Réduit un peu l'espace par rapport au h2 général */
-    position: relative;
-}
-
-.daily-fact-section h2::after {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 3px;
-    background: var(--secondary-color);
-    margin: 10px auto 0;
-    border-radius: 5px;
-}
-
-.daily-fact-card {
-    padding: 15px;
-    background-color: #e0f2f7; /* Un fond doux pour le fait */
-    border-radius: 10px;
-    border: 1px solid #b3e5fc; /* Bordure légère */
-    min-height: 80px; /* Hauteur minimale pour éviter les sauts de mise en page */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Daily Fact/Quiz Card & Fun Stats Card */
+.daily-fact-card, .fun-stats-card {
     font-size: 1.1em;
-    font-style: italic;
-    color: var(--text-dark);
+    line-height: 1.6;
+    color: #555;
 }
 
-/* --- Nouvelle section "Statistiques Amusantes" --- */
-.fun-stats-section {
-    background: var(--bg-light);
-    border-radius: var(--border-radius-card);
-    box-shadow: 0 8px 25px var(--shadow-light);
-    padding: var(--padding-card);
-    text-align: center;
-    margin-bottom: 50px; /* Espace après cette section */
-}
-
-.fun-stats-section h2 {
-    font-size: 2em;
-    color: var(--primary-color);
-    text-align: center;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.fun-stats-section h2::after {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 3px;
-    background: var(--secondary-color);
-    margin: 10px auto 0;
-    border-radius: 5px;
-}
-
-.fun-stats-card {
-    padding: 15px;
-    background-color: #ffe0b2; /* Un fond doux orangé pour les stats */
-    border-radius: 10px;
-    border: 1px solid #ffcc80; /* Bordure légère */
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
-    font-weight: 500; /* Légèrement plus gras que le fait du jour */
-    color: var(--text-dark);
-}
-
-
-/* --- Game Section --- */
-.game-section {
-    background: var(--bg-light);
-    border-radius: var(--border-radius-card);
-    box-shadow: 0 8px 25px var(--shadow-light);
-    padding: var(--padding-card);
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-.game-section p {
-    margin-bottom: 20px;
-    font-size: 1.1em;
-}
-
+/* Game Section */
 .game-controls {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
+    margin-top: 15px;
 }
 
-input[type="number"] {
-    width: 90px;
-    padding: 10px 15px;
-    border: 1px solid var(--secondary-color);
-    border-radius: 8px;
+.game-controls input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     font-size: 1em;
+    width: 80px;
     text-align: center;
-    transition: border-color 0.3s;
 }
 
-input[type="number"]:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-}
-
-button {
-    background: var(--primary-color);
-    color: var(--text-light);
+.game-controls button {
+    background-color: var(--primary-color, #2196F3);
+    color: white;
     border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 1em;
+    padding: 10px 15px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    font-weight: 600;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background: #388E3C;
-    transform: translateY(-2px);
+.game-controls button:hover {
+    background-color: var(--accent-color, #1976D2);
 }
 
 .game-result {
-    margin-top: 20px;
-    font-weight: 600;
-    color: var(--secondary-color);
-    font-size: 1.2em;
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 1.5em; /* Pour éviter le décalage quand le texte apparaît */
 }
 
-/* --- Footer --- */
+/* Footer */
 .footer {
-    background: var(--text-dark);
-    color: var(--text-light);
+    background-color: rgba(0, 0, 0, 0.5); /* Overlay */
+    color: white;
     text-align: center;
     padding: 20px;
-    font-size: 0.9em;
-    border-top-left-radius: var(--border-radius-card);
-    border-top-right-radius: var(--border-radius-card);
-    box-shadow: 0 -4px 20px var(--shadow-medium);
+    margin-top: 20px;
+    position: relative;
+    z-index: 1;
 }
 
-/* --- Responsive Design (Media Queries) --- */
-@media (min-width: 768px) {
-    .zone-cards-wrapper {
-        grid-template-columns: 1fr 1fr; /* Deux colonnes sur les écrans plus larges */
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr; /* Une colonne sur mobile */
     }
-}
 
-/* --- Background Day/Night Classes for Body (Global) --- */
-body.day {
-    background: linear-gradient(135deg, #87CEEB, #A7D9F5); /* Jour: Ciel clair */
-}
+    .hero-content h1 {
+        font-size: 2em;
+    }
 
-body.night {
-    background: linear-gradient(135deg, #1A202C, #0E1218); /* Nuit: Ciel sombre */
+    .countdown {
+        font-size: 2em;
+    }
+
+    .zone-card {
+        flex: 1 1 100%; /* Une carte par ligne sur les petits écrans */
+    }
 }
