@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon événement - Compte à Rebours</title>
+    <title>Mon événement & Suivi des Vols</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -21,100 +21,146 @@
 </header>
 
 <main class="main-content">
-    <section class="time-zones-section">
-        <h2>Heures Locales</h2>
-        <div class="zone-cards-wrapper">
-            <div class="zone-card france" data-timezone="Europe/Paris">
-                <div class="zone-header">
-                    <i class="fas fa-city icon"></i>
-                    <h3 class="zone-name">Nantes, France</h3>
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="home">Accueil</button>
+            <button class="tab-button" data-tab="flights">Suivi des Vols</button>
+        </div>
+
+        <div id="home" class="tab-content active">
+            <section class="card time-zones-section">
+                <h2>Heures Locales</h2>
+                <div class="zone-cards-wrapper">
+                    <div class="zone-card france" data-timezone="Europe/Paris">
+                        <div class="zone-header">
+                            <i class="fas fa-city icon"></i>
+                            <h3 class="zone-name">Nantes, France</h3>
+                        </div>
+                        <div class="time-display" id="frenchTime"></div>
+                        <p class="message" id="messageNantes"></p>
+                        <div class="time-icon"></div>
+                    </div>
+
+                    <div class="zone-card quebec" data-timezone="America/Montreal">
+                        <div class="zone-header">
+                            <i class="fas fa-map-marker-alt icon"></i>
+                            <h3 class="zone-name">Montréal, Canada</h3>
+                        </div>
+                        <div class="time-display" id="canadianTime"></div>
+                        <p class="message" id="messageMontreal"></p>
+                        <div class="time-icon"></div>
+                    </div>
                 </div>
-                <div class="time-display" id="frenchTime"></div>
-                <p class="message" id="messageNantes"></p>
-                <div class="time-icon" id="nantesTimeIcon"></div>
-            </div>
+            </section>
 
-            <div class="zone-card quebec" data-timezone="America/Montreal">
-                <div class="zone-header">
-                    <i class="fas fa-map-marker-alt icon"></i>
-                    <h3 class="zone-name">Montréal, Canada</h3>
+            <section class="card daily-quiz-section">
+                <h2>Quiz du Jour : Le Saviez-Vous ?</h2>
+                <div class="quiz-card">
+                    <p id="quiz-question">Chargement de la question...</p>
+                    <div class="quiz-options" id="quiz-options">
+                    </div>
+                    <p class="quiz-result" id="quiz-result"></p>
+                    <button id="next-question-btn" class="btn" style="display:none;">Question Suivante</button>
                 </div>
-                <div class="time-display" id="canadianTime"></div>
-                <p class="message" id="messageMontreal"></p>
-                <div class="time-icon" id="montrealTimeIcon"></div>
-            </div>
-        </div>
-    </section>
+            </section>
 
-    <section class="daily-quiz-section">
-        <h2>Quiz du Jour : Le Saviez-Vous ?</h2>
-        <div class="quiz-card">
-            <p id="quiz-question">Chargement de la question...</p>
-            <div class="quiz-options" id="quiz-options">
-            </div>
-            <p class="quiz-result" id="quiz-result"></p>
-            <button id="next-question-btn" style="display:none;">Question Suivante</button>
-        </div>
-    </section>
+            <section class="card fun-stats-section">
+                <h2>Statistique Amusante</h2>
+                <div class="fun-stats-card">
+                    <p id="funStatText">Chargement d'une statistique...</p>
+                </div>
+            </section>
 
-    <section class="fun-stats-section">
-        <h2>Statistique Amusante</h2>
-        <div class="fun-stats-card">
-            <p id="funStatText">Chargement d'une statistique...</p>
-        </div>
-    </section>
+            <section class="card game-section">
+                <h2>Mini-jeu : Devinette Numérique</h2>
+                <p>Devine un nombre entre 1 et 10 :</p>
+                <div class="game-controls">
+                    <input type="number" id="guessInput" min="1" max="10" placeholder="Ton chiffre">
+                    <button class="btn" onclick="checkGuess()">Valider</button>
+                </div>
+                <p class="game-result" id="guessResult"></p>
+            </section>
 
-    <section class="game-section">
-        <h2>Mini-jeu : Devinette Numérique</h2>
-        <p>Devine un nombre entre 1 et 10 :</p>
-        <div class="game-controls">
-            <input type="number" id="guessInput" min="1" max="10" placeholder="Ton chiffre">
-            <button onclick="checkGuess()">Valider</button>
+            <section class="card daily-expression-section">
+                <h2>Expression du Jour (Anglais)</h2>
+                <div class="expression-card">
+                    <p id="english-expression">Chargement de l'expression...</p>
+                    <p id="french-translation" class="translation-hidden"></p>
+                    <button id="reveal-translation-btn" class="btn reveal-btn">Révéler la traduction</button>
+                    <button id="next-expression-btn" class="btn next-btn" style="display:none;">Autre expression</button>
+                </div>
+            </section>
         </div>
-        <p class="game-result" id="guessResult"></p>
-    </section>
 
-    <section class="daily-expression-section">
-        <h2>Expression du Jour (Anglais)</h2>
-        <div class="expression-card">
-            <p id="english-expression">Chargement de l'expression...</p>
-            <p id="french-translation" class="translation-hidden"></p>
-            <button id="reveal-translation-btn" class="btn reveal-btn">Révéler la traduction</button>
-            <button id="next-expression-btn" class="btn next-btn" style="display:none;">Autre expression</button>
-        </div>
-    </section>
+        <div id="flights" class="tab-content">
+            <section class="card flight-tracking-section">
+                <h2>Rechercher un vol en direct</h2>
+                <div class="flight-input">
+                    <input type="text" id="flightCallsignInput" placeholder="Ex: AFR123 (indicatif d'appel)">
+                    <button id="searchFlightBtn" class="btn">Rechercher</button>
+                </div>
+                <p class="click-info">Cliquez sur une ligne du tableau pour voir le vol sur la carte.</p>
+                <div class="message" id="searchMessage"></div>
+            </section>
 
-    <section class="flight-tracker-section">
-        <h2>Suivi des Vols en Temps Réel</h2>
-        <div class="flight-search-card">
-            <p>Cherchez un vol par son numéro (ex: AFR123) ou affichez les vols au départ/arrivée de Nantes ou Montréal.</p>
-            <div class="search-controls">
-                <input type="text" id="flightNumberInput" placeholder="Numéro de vol (ex: AFR123)">
-                <button id="searchFlightBtn" class="btn">Rechercher Vol</button>
-            </div>
-            <div class="filter-buttons">
-                <button id="showNantesDeparturesBtn" class="btn">Départs de Nantes</button>
-                <button id="showMontrealDeparturesBtn" class="btn">Départs de Montréal</button>
-            <p id="flightStatusMessage" class="status-message"></p>
-            <div class="flight-results-container">
-                <table id="flightResultsTable" class="flight-table">
-                    <thead>
-                    <tr>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <p id="noFlightResults" style="display:none; text-align: center; padding: 20px;">Aucun vol trouvé pour votre recherche.</p>
-            </div>
+            <section class="card flight-tracking-section">
+                <h2>Vols par aéroport (dernières 24h)</h2>
+                <div class="airport-buttons">
+                    <h3>Départs</h3>
+                    <button class="btn" id="departuresLFRS" data-icao="LFRS" data-type="departure">Départs Nantes (LFRS)</button>
+                    <button class="btn" id="departuresCYUL" data-icao="CYUL" data-type="departure">Départs Montréal (CYUL)</button>
+                    <h3>Arrivées</h3>
+                    <button class="btn" id="arrivalsLFRS" data-icao="LFRS" data-type="arrival">Arrivées Nantes (LFRS)</button>
+                    <button class="btn" id="arrivalsCYUL" data-icao="CYUL" data-type="arrival">Arrivées Montréal (CYUL)</button>
+                </div>
+                <div class="message" id="airportMessage"></div>
+            </section>
+
+            <section class="card flight-tracking-section">
+                <h2>Résultats des vols</h2>
+                <div class="flight-results-container">
+                    <table id="flightResultsTable">
+                        <thead>
+                        <tr>
+                        </tr>
+                        </thead>
+                        <tbody id="flightResultsTableBody">
+                        <tr>
+                            <td colspan="9" id="noFlightResults">Aucun vol trouvé pour le moment.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-    </section>
+    </div>
 </main>
 
 <footer class="footer">
     <p>&copy; 2025 Mon Site Sympathique. Tous droits réservés.</p>
 </footer>
+
 <script src="js/quizData.js"></script>
 <script src="js/script.js"></script>
+<script>
+    // JavaScript pour la gestion des onglets
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Supprime la classe 'active' de tous les boutons et contenus
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Ajoute la classe 'active' au bouton cliqué et au contenu correspondant
+                button.classList.add('active');
+                const targetTab = button.dataset.tab;
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+    });
+</script>
 </body>
 </html>

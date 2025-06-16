@@ -4,7 +4,7 @@
 // Cible: 10 Septembre 2025 à 23:59:59
 const targetDate = new Date('2025-09-10T23:59:59').getTime();
 // Date de début du suivi (aujourd'hui, le 16 juin 2025)
-const startDate = new Date('2025-06-16T00:00:00').getTime();
+const startDate = new Date('2025-06-16T00:00:00').getTime(); // Utilise la date d'aujourd'hui pour le début du suivi
 
 // --- Fonctions d'Utilitaires ---
 
@@ -61,6 +61,20 @@ function shuffleArray(array) {
     return array;
 }
 
+/**
+ * Traduit le code de la source de position en texte lisible pour les vols OpenSky.
+ * @param {number} sourceCode - Le code numérique de la source de position.
+ * @returns {string} Le texte correspondant à la source de position.
+ */
+function getPositionSourceText(sourceCode) {
+    switch (sourceCode) {
+        case 0: return 'ADS-B';
+        case 1: return 'MLAT';
+        case 2: return 'FLARM';
+        default: return 'Inconnu';
+    }
+}
+
 // --- Fonctions de Mise à Jour du DOM ---
 
 /** Met à jour l'affichage du compte à rebours. */
@@ -71,7 +85,7 @@ function updateCountdown() {
 
     if (countdownElement) {
         if (distance < 0) {
-            clearInterval(countdownInterval);
+            clearInterval(countdownInterval); // Assurez-vous que countdownInterval est défini globalement ou accessible
             countdownElement.innerHTML = "L'événement est arrivé !";
             const progressContainer = document.querySelector('.progress-container');
             if (progressContainer) {
@@ -115,6 +129,7 @@ function updateProgressBar() {
             percent = 0;
         } else if (now >= targetDate) { // Si la date cible est dépassée
             percent = 100;
+            progressBarEl.style.width = "100%"; // S'assurer que la barre est à 100%
             progressBarEl.style.display = 'none'; // Cacher la barre
             progressTextEl.textContent = "L'événement est terminé !";
         } else {
@@ -278,7 +293,14 @@ function checkAnswer(selectedOption, correctAnswer) {
 
 /** Charge les questions du quiz et affiche la première. */
 function loadQuizQuestions() {
-    console.log('Questions chargées :', quizQuestions);
+    // Vérifiez si 'quizQuestions' est disponible globalement (définie dans quizData.js)
+    // console.log('Questions chargées :', typeof quizQuestions !== 'undefined' ? quizQuestions.length : 0);
+    // Supprimez le console.log ci-dessus et ajoutez le suivant pour un message plus précis
+    if (typeof quizQuestions === 'undefined') {
+        console.error("Erreur: quizData.js n'est pas chargé ou quizQuestions n'est pas défini.");
+    } else {
+        console.log('Questions chargées :', quizQuestions.length);
+    }
     displayRandomQuizQuestion();
 }
 
@@ -291,8 +313,10 @@ function displayRandomFunStat() {
         console.error("L'élément de statistique amusante est introuvable. Vérifiez l'ID 'funStatText' dans index.html.");
         return;
     }
+    // Vérifiez si 'funStats' est disponible globalement (définie dans funStats.js)
     if (typeof funStats === 'undefined' || funStats.length === 0) {
         funStatTextEl.textContent = "Aucune statistique amusante disponible pour le moment.";
+        console.error("Erreur: funStats.js n'est pas chargé ou funStats n'est pas défini.");
     } else {
         const randomIndex = Math.floor(Math.random() * funStats.length);
         funStatTextEl.textContent = funStats[randomIndex];
@@ -303,12 +327,13 @@ function displayRandomFunStat() {
 const englishExpressionEl = document.getElementById('english-expression');
 const frenchTranslationEl = document.getElementById('french-translation');
 const revealTranslationBtn = document.getElementById('reveal-translation-btn');
-const nextExpressionBtn = document.getElementById('next-expression-btn'); // Correctement déclarée ici
+const nextExpressionBtn = document.getElementById('next-expression-btn');
 
 /** Affiche une expression anglaise aléatoire avec sa traduction. */
 function displayDailyExpression() {
+    // Vérifiez si 'englishExpressions' est disponible globalement (définie dans englishExpressions.js)
     if (!englishExpressionEl || !frenchTranslationEl || !revealTranslationBtn || !nextExpressionBtn || typeof englishExpressions === 'undefined' || englishExpressions.length === 0) {
-        console.error("Éléments d'expression ou données introuvables.");
+        console.error("Éléments d'expression ou données introuvables. Vérifiez les IDs ou englishExpressions.js.");
         return;
     }
 
@@ -331,71 +356,153 @@ function displayDailyExpression() {
     };
 }
 
-// --- Logique de Suivi des Vols (OpenSky Network uniquement) ---
-const flightNumberInput = document.getElementById('flightNumberInput');
+// --- Logique de Suivi des Vols (OpenSky Network) ---
+const flightCallsignInput = document.getElementById('flightCallsignInput');
 const searchFlightBtn = document.getElementById('searchFlightBtn');
-
-// Boutons des départs/arrivées
-const showNantesDeparturesBtn = document.getElementById('showNantesDeparturesBtn');
-const showNantesArrivalsBtn = document.getElementById('showNantesArrivalsBtn');
-const showMontrealDeparturesBtn = document.getElementById('showMontrealDeparturesBtn');
-const showMontrealArrivalsBtn = document.getElementById('showMontrealArrivalsBtn');
-
-const flightStatusMessage = document.getElementById('flightStatusMessage');
-const flightResultsTableBody = document.querySelector('#flightResultsTable tbody');
-const noFlightResultsMessage = document.getElementById('noFlightResults');
+const airportButtons = document.querySelectorAll('.airport-buttons .btn');
+const searchMessage = document.getElementById('searchMessage');
+const airportMessage = document.getElementById('airportMessage'); // Nouveau message pour les aéroports
+const flightResultsTableBody = document.getElementById('flightResultsTableBody');
+const noFlightResults = document.getElementById('noFlightResults'); // Élément "Aucun vol trouvé"
 
 /**
- * Récupère les données des avions en temps réel via l'API OpenSky States.
- * Permet de filtrer par indicatif d'appel ou pays d'origine.
- * @param {string|null} filterCallsign - L'indicatif d'appel à filtrer.
- * @param {string|null} originCountry - Le pays d'origine de l'avion à filtrer.
+ * Ouvre une nouvelle page (map.html) avec les détails du vol pour l'afficher sur une carte.
+ * @param {Object} flightData - Un objet contenant les données du vol (issues des data-attributes de la ligne).
  */
-async function fetchLiveFlightData(filterCallsign = null, originCountry = null) {
-    flightStatusMessage.textContent = "Recherche des vols en temps réel en cours (OpenSky)...";
-    flightStatusMessage.style.color = 'blue';
-    flightResultsTableBody.innerHTML = '';
-    noFlightResultsMessage.style.display = 'none';
-    updateFlightTableHeaders('live'); // Met à jour les en-têtes pour les vols en direct
+function openFlightOnMap(flightData) {
+    const params = new URLSearchParams();
+    // Les noms des paramètres doivent correspondre à ce que mapScript.js attend
+    // mapScript.js attend 'icao24', 'callsign', 'type', 'lat', 'lon', 'depIcao', 'arrIcao'
+
+    params.append('icao24', flightData.icao24 || '');
+    params.append('callsign', encodeURIComponent(flightData.callsign || 'N/A')); // Encode l'indicatif d'appel
+
+    // ********* CORRECTION ICI : Assurez-vous que le type est toujours ajouté *********
+    params.append('type', flightData.flightType || 'unknown'); // Assurez-vous que flightType est toujours envoyé
+
+    if (flightData.flightType === 'live') {
+        // mapScript.js attend 'lat' et 'lon'
+        if (flightData.latitude) { // Vérifie si la latitude existe avant d'ajouter
+            params.append('lat', flightData.latitude);
+        }
+        if (flightData.longitude) { // Vérifie si la longitude existe avant d'ajouter
+            params.append('lon', flightData.longitude);
+        }
+    } else if (flightData.flightType === 'historical') {
+        // mapScript.js attend 'depIcao' et 'arrIcao'
+        params.append('depIcao', flightData.departureAirportIcao || '');
+        params.append('arrIcao', flightData.arrivalAirportIcao || '');
+    }
+
+    window.open(`map.html?${params.toString()}`, '_blank');
+}
+
+
+/**
+ * Affiche un message dans un élément DOM.
+ * @param {HTMLElement} element - L'élément DOM où afficher le message.
+ * @param {string} msg - Le message à afficher.
+ * @param {'info'|'success'|'error'} type - Le type de message pour le style.
+ */
+function showMessage(element, msg, type = 'info') {
+    if (element) {
+        element.textContent = msg;
+        element.className = `message ${type}`;
+        element.style.display = 'block';
+    }
+}
+
+/**
+ * Cache un message dans un élément DOM.
+ * @param {HTMLElement} element - L'élément DOM à cacher.
+ */
+function hideMessage(element) {
+    if (element) {
+        element.textContent = '';
+        element.className = 'message';
+        element.style.display = 'none';
+    }
+}
+
+/** Nettoie le tableau des résultats de vol et affiche le message "Aucun vol trouvé". */
+function clearFlightTable() {
+    if (flightResultsTableBody) {
+        flightResultsTableBody.innerHTML = '';
+    }
+    if (noFlightResults) {
+        noFlightResults.style.display = 'table-row'; // Affiche la ligne "Aucun vol trouvé"
+    }
+}
+
+async function searchLiveFlight(callsign) {
+    showMessage(searchMessage, `Recherche du vol ${callsign}...`, 'info');
+    hideMessage(airportMessage); // Cache le message de l'autre section
+    clearFlightTable();
+    updateFlightTableHeaders('live'); // S'assurer que les bons en-têtes sont là
 
     try {
+        // La limitation de l'API OpenSky pour /states/all est que le filtrage par callsign n'est pas direct.
+        // Il faut récupérer tout et filtrer côté client.
+        // Attention aux limites de requêtes de l'API gratuite !
         const response = await fetch('https://opensky-network.org/api/states/all');
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
         const data = await response.json();
 
-        if (!data || !data.states || data.states.length === 0) {
-            flightStatusMessage.textContent = "Aucune donnée de vol en temps réel disponible actuellement (OpenSky).";
-            flightStatusMessage.style.color = 'orange';
-            noFlightResultsMessage.style.display = 'block';
-            return;
-        }
-
-        let filteredFlights = data.states;
-
-        if (filterCallsign) {
-            const normalizedFilter = filterCallsign.trim().toUpperCase();
-            filteredFlights = filteredFlights.filter(state =>
-                state[1] && state[1].trim().toUpperCase().includes(normalizedFilter)
+        if (data && data.states) {
+            const foundFlights = data.states.filter(flight =>
+                flight[1] && flight[1].trim().toUpperCase() === callsign
             );
+
+            if (foundFlights.length > 0) {
+                displayLiveFlightResults(foundFlights);
+                showMessage(searchMessage, `Vol(s) "${callsign}" trouvé(s).`, 'success');
+            } else {
+                showMessage(searchMessage, `Vol "${callsign}" non trouvé ou non actif actuellement.`, 'info');
+                if (noFlightResults) noFlightResults.style.display = 'table-row';
+            }
+        } else {
+            showMessage(searchMessage, 'Aucune donnée de vol en direct reçue de l\'API.', 'info');
+            if (noFlightResults) noFlightResults.style.display = 'table-row';
         }
-
-        if (filteredFlights.length === 0) {
-            flightStatusMessage.textContent = "Aucun vol en temps réel trouvé pour votre recherche (OpenSky).";
-            flightStatusMessage.style.color = 'orange';
-            noFlightResultsMessage.style.display = 'block';
-            return;
-        }
-
-        displayLiveFlightResults(filteredFlights);
-        flightStatusMessage.textContent = `Affichage de ${filteredFlights.length} vol(s) en temps réel (OpenSky).`;
-        flightStatusMessage.style.color = 'green';
-
     } catch (error) {
-        console.error("Erreur lors de la récupération des données de vol en temps réel (OpenSky):", error);
-        flightStatusMessage.textContent = "Erreur OpenSky: Impossible de charger les vols en temps réel. Veuillez réessayer plus tard.";
-        flightStatusMessage.style.color = 'red';
+        console.error('Erreur lors de la recherche du vol en direct:', error);
+        showMessage(searchMessage, `Erreur: ${error.message}. Impossible de récupérer les données de vol en direct.`, 'error');
+        if (noFlightResults) noFlightResults.style.display = 'table-row';
+    }
+}
+
+async function searchAirportLogs(icao, type) {
+    showMessage(airportMessage, `Recherche des ${type}s à ${icao}...`, 'info');
+    hideMessage(searchMessage); // Cache le message de l'autre section
+    clearFlightTable();
+    updateFlightTableHeaders('logs'); // S'assurer que les bons en-têtes sont là
+
+    // Calculer les timestamps pour les dernières 24 heures
+    const now = Math.floor(Date.now() / 1000); // Temps actuel en secondes UNIX
+    const begin = now - (24 * 60 * 60); // Il y a 24 heures
+
+    const url = `https://opensky-network.org/api/flights/${type}?airport=${icao}&begin=${begin}&end=${now}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+            displayOpenSkyLogs(data, type);
+            showMessage(airportMessage, `${data.length} ${type}s trouvé(s) pour ${icao} sur les dernières 24h.`, 'success');
+        } else {
+            showMessage(airportMessage, `Aucun ${type} trouvé pour ${icao} sur les dernières 24h.`, 'info');
+            if (noFlightResults) noFlightResults.style.display = 'table-row';
+        }
+    } catch (error) {
+        console.error(`Erreur lors de la recherche des ${type}s pour ${icao}:`, error);
+        showMessage(airportMessage, `Erreur: ${error.message}. Impossible de récupérer les données de l'aéroport.`, 'error');
+        if (noFlightResults) noFlightResults.style.display = 'table-row';
     }
 }
 
@@ -405,84 +512,98 @@ async function fetchLiveFlightData(filterCallsign = null, originCountry = null) 
  */
 function displayLiveFlightResults(flights) {
     flightResultsTableBody.innerHTML = '';
+    if (flights.length === 0) {
+        if (noFlightResults) noFlightResults.style.display = 'table-row';
+        return;
+    }
+    if (noFlightResults) noFlightResults.style.display = 'none';
 
+    // Index des données dans le tableau OpenSky /states/all
+    const ICAO24_INDEX = 0;
     const CALLSIGN_INDEX = 1;
     const ORIGIN_COUNTRY_INDEX = 2;
-    const VELOCITY_INDEX = 9; // en m/s
-    const ALTITUDE_INDEX = 7; // baro_altitude en mètres
-    const LAST_CONTACT_INDEX = 4; // timestamp UNIX
-    const ON_GROUND_INDEX = 8; // on_ground: boolean
+    const TIME_POSITION_INDEX = 3;
+    const LAST_CONTACT_INDEX = 4;
+    const LONGITUDE_INDEX = 5;
+    const LATITUDE_INDEX = 6;
+    const BARO_ALTITUDE_INDEX = 7;
+    const ON_GROUND_INDEX = 8;
+    const VELOCITY_INDEX = 9;
+    const TRUE_TRACK_INDEX = 10;
+    const VERTICAL_RATE_INDEX = 11;
+    const GEO_ALTITUDE_INDEX = 13;
+    const SQUAWK_INDEX = 14;
+    const POSITION_SOURCE_INDEX = 16;
+    // Note: flight[13] et flight[14] ne sont PAS les aéroports de départ/arrivée ici pour /states/all,
+    // ce sont d'autres données (généralement cap et squawk).
+    // Les aéroports de départ/arrivée sont dans les logs historiques (/flights/X).
 
     flights.forEach(flight => {
         const row = flightResultsTableBody.insertRow();
+        row.style.cursor = 'pointer';
 
         const callsign = flight[CALLSIGN_INDEX] ? flight[CALLSIGN_INDEX].trim() : 'N/A';
+        const icao24 = flight[ICAO24_INDEX] || 'N/A';
         const originCountry = flight[ORIGIN_COUNTRY_INDEX] || 'Inconnu';
         const velocityMps = flight[VELOCITY_INDEX];
         const velocityKmh = velocityMps !== null ? (velocityMps * 3.6).toFixed(0) : 'N/A';
-        const altitudeM = flight[ALTITUDE_INDEX];
-        const altitudeFeet = altitudeM !== null ? (altitudeM * 3.28084).toFixed(0) : 'N/A';
+        const baroAltitudeM = flight[BARO_ALTITUDE_INDEX];
+        const baroAltitudeFeet = baroAltitudeM !== null ? (baroAltitudeM * 3.28084).toFixed(0) : 'N/A';
         const lastContactTimestamp = flight[LAST_CONTACT_INDEX];
         const lastContactDate = lastContactTimestamp ? new Date(lastContactTimestamp * 1000).toLocaleString('fr-FR') : 'N/A';
         const onGround = flight[ON_GROUND_INDEX];
         const status = onGround ? 'Au sol' : 'En vol';
 
+        const trueTrack = flight[TRUE_TRACK_INDEX] !== null ? `${flight[TRUE_TRACK_INDEX].toFixed(0)}°` : 'N/A';
+        const verticalRateMps = flight[VERTICAL_RATE_INDEX];
+        const verticalRateText = verticalRateMps !== null
+            ? (verticalRateMps > 0 ? `+${verticalRateMps.toFixed(1)} m/s (Montée)`
+                : `${verticalRateMps.toFixed(1)} m/s (Descente)`)
+            : 'N/A';
+        const squawk = flight[SQUAWK_INDEX] || 'N/A';
+
+        const timePositionTimestamp = flight[TIME_POSITION_INDEX];
+        const timePositionDate = timePositionTimestamp ? new Date(timePositionTimestamp * 1000).toLocaleTimeString('fr-FR') : 'N/A';
+
+        const geoAltitudeM = flight[GEO_ALTITUDE_INDEX];
+        const geoAltitudeFeet = geoAltitudeM !== null ? (geoAltitudeM * 3.28084).toFixed(0) : 'N/A';
+
+        const positionSource = flight[POSITION_SOURCE_INDEX] !== null ? getPositionSourceText(flight[POSITION_SOURCE_INDEX]) : 'N/A';
+
+
         row.insertCell().textContent = callsign;
         row.insertCell().textContent = originCountry;
         row.insertCell().textContent = `${velocityKmh} km/h`;
-        row.insertCell().textContent = `${altitudeFeet} ft (${altitudeM ? altitudeM.toFixed(0) : 'N/A'} m)`;
+        row.insertCell().textContent = `${baroAltitudeFeet} ft`;
+        row.insertCell().textContent = `${geoAltitudeFeet} ft`;
+        row.insertCell().textContent = trueTrack;
+        row.insertCell().textContent = verticalRateText;
+        row.insertCell().textContent = squawk;
+        row.insertCell().textContent = timePositionDate;
         row.insertCell().textContent = lastContactDate;
+        row.insertCell().textContent = positionSource;
         row.insertCell().textContent = status;
+
+        // --- C'EST ICI QUE LES CORRECTIONS SONT CRUCIALES POUR map.html ---
+        row.dataset.flightType = 'live'; // Indique à map.html que c'est un vol live
+        row.dataset.icao24 = icao24;
+        row.dataset.callsign = callsign;
+
+        // Passer la latitude et la longitude si elles sont disponibles
+        if (flight[LATITUDE_INDEX] !== null && flight[LONGITUDE_INDEX] !== null) {
+            row.dataset.latitude = flight[LATITUDE_INDEX];
+            row.dataset.longitude = flight[LONGITUDE_INDEX];
+        } else {
+            // Si pas de coordonnées, on peut passer en mode "historique" ou indiquer que les coordonnées manquent
+            // Pour map.html, il est préférable d'envoyer un type 'live' même sans lat/lon initiales
+            // pour qu'il tente de récupérer les données en direct. Le message sera géré dans mapScript.js
+            // On s'assure juste que ces data-attributs ne sont pas définis si les valeurs sont null.
+            delete row.dataset.latitude;
+            delete row.dataset.longitude;
+        }
+
+        row.addEventListener('click', () => openFlightOnMap(row.dataset));
     });
-}
-
-/**
- * Récupère les journaux de vol (départs ou arrivées) pour un aéroport spécifique et une période donnée depuis OpenSky.
- * @param {string} airportIcaoCode - Le code ICAO de l'aéroport (ex: 'LFRS', 'CYUL').
- * @param {'departure'|'arrival'} type - Le type de vol à rechercher ('departure' ou 'arrival').
- * @param {number} hoursAgo - Le nombre d'heures avant l'instant actuel pour la recherche.
- */
-async function fetchOpenSkyAirportFlights(airportIcaoCode, type, hoursAgo = 7) {
-    flightStatusMessage.textContent = `Recherche des vols ${type === 'departure' ? 'au départ' : 'à l\'arrivée'} de ${airportIcaoCode} dans les ${hoursAgo} dernières heures (OpenSky)...`;
-    flightStatusMessage.style.color = 'blue';
-    flightResultsTableBody.innerHTML = '';
-    noFlightResultsMessage.style.display = 'none';
-    updateFlightTableHeaders('logs'); // Met à jour les en-têtes pour les journaux de vol
-
-    const now = Math.floor(Date.now() / 1000); // Temps actuel en secondes UNIX
-    const beginTime = now - (hoursAgo * 60 * 60); // Heure de début de la période de recherche
-
-    try {
-        const url = `https://opensky-network.org/api/flights/${type}?airport=${airportIcaoCode}&begin=${beginTime}&end=${now}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            if (response.status === 404) {
-                flightStatusMessage.textContent = `Aucun vol ${type === 'departure' ? 'au départ' : 'à l\'arrivée'} trouvé pour ${airportIcaoCode} dans cette période (OpenSky).`;
-                flightStatusMessage.style.color = 'orange';
-                noFlightResultsMessage.style.display = 'block';
-                return;
-            }
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        const data = await response.json();
-
-        if (!data || data.length === 0) {
-            flightStatusMessage.textContent = `Aucun vol ${type === 'departure' ? 'au départ' : 'à l\'arrivée'} trouvé pour ${airportIcaoCode} dans cette période (OpenSky).`;
-            flightStatusMessage.style.color = 'orange';
-            noFlightResultsMessage.style.display = 'block';
-            return;
-        }
-
-        displayOpenSkyLogs(data, type);
-        flightStatusMessage.textContent = `Affichage de ${data.length} vol(s) ${type === 'departure' ? 'au départ' : 'à l\'arrivée'} pour ${airportIcaoCode} (OpenSky).`;
-        flightStatusMessage.style.color = 'green';
-
-    } catch (error) {
-        console.error("Erreur lors de la récupération des vols (OpenSky):", error);
-        flightStatusMessage.textContent = "Erreur OpenSky: Impossible de charger les vols. Veuillez réessayer.";
-        flightStatusMessage.style.color = 'red';
-    }
 }
 
 /**
@@ -492,9 +613,16 @@ async function fetchOpenSkyAirportFlights(airportIcaoCode, type, hoursAgo = 7) {
  */
 function displayOpenSkyLogs(flights, type) {
     flightResultsTableBody.innerHTML = '';
+    if (flights.length === 0) {
+        if (noFlightResults) noFlightResults.style.display = 'table-row';
+        return;
+    }
+    if (noFlightResults) noFlightResults.style.display = 'none';
 
     flights.forEach(flight => {
         const row = flightResultsTableBody.insertRow();
+        row.style.cursor = 'pointer';
+
         const firstSeenDate = flight.firstSeen ? new Date(flight.firstSeen * 1000).toLocaleString('fr-FR') : 'N/A';
         const lastSeenDate = flight.lastSeen ? new Date(flight.lastSeen * 1000).toLocaleString('fr-FR') : 'N/A';
 
@@ -505,6 +633,16 @@ function displayOpenSkyLogs(flights, type) {
         row.insertCell().textContent = firstSeenDate;
         row.insertCell().textContent = lastSeenDate;
         row.insertCell().textContent = type === 'departure' ? 'Départ' : 'Arrivée';
+
+        // --- C'EST ICI QUE LES CORRECTIONS SONT CRUCIALES POUR map.html ---
+        row.dataset.flightType = 'historical'; // Indique à map.html que c'est un vol historique
+        row.dataset.icao24 = flight.icao24 || '';
+        row.dataset.callsign = flight.callsign || 'N/A';
+        // Passer les ICAO des aéroports de départ et d'arrivée
+        row.dataset.departureAirportIcao = flight.estDepartureAirport || ''; // mapScript.js attend 'depIcao'
+        row.dataset.arrivalAirportIcao = flight.estArrivalAirport || '';     // mapScript.js attend 'arrIcao'
+
+        row.addEventListener('click', () => openFlightOnMap(row.dataset));
     });
 }
 
@@ -514,110 +652,99 @@ function displayOpenSkyLogs(flights, type) {
  */
 function updateFlightTableHeaders(mode) {
     const tableHead = document.querySelector('#flightResultsTable thead tr');
-    if (!tableHead) return; // S'assurer que l'élément existe
+    if (!tableHead) return;
 
     tableHead.innerHTML = ''; // Vider les en-têtes existants
 
     if (mode === 'live') {
         tableHead.innerHTML = `
-            <th>Indicatif d'appel (Callsign)</th>
+            <th>Indicatif d'appel</th>
             <th>Pays d'origine</th>
             <th>Vitesse (km/h)</th>
-            <th>Altitude (m)</th>
+            <th>Altitude Baro (ft)</th>
+            <th>Altitude Geo (ft)</th>
+            <th>Cap (Deg)</th>
+            <th>Taux Vertical</th>
+            <th>Squawk</th>
+            <th>Pos. Maj.</th>
             <th>Dernier contact</th>
+            <th>Source Pos.</th>
             <th>Statut</th>
         `;
     } else if (mode === 'logs') {
         tableHead.innerHTML = `
-            <th>Indicatif d'appel (Callsign)</th>
+            <th>Indicatif d'appel</th>
             <th>ICAO24</th>
-            <th>Aéroport de départ estimé</th>
-            <th>Aéroport d'arrivée estimé</th>
-            <th>Heure de début (1er contact)</th>
-            <th>Heure de fin (Dernier contact)</th>
+            <th>Aéroport Départ Est.</th>
+            <th>Aéroport Arrivée Est.</th>
+            <th>Heure Début</th>
+            <th>Heure Fin</th>
             <th>Type</th>
         `;
     }
 }
 
-// --- Gestionnaires d'événements pour les boutons de suivi des vols ---
-
-if (searchFlightBtn) {
-    searchFlightBtn.addEventListener('click', () => {
-        const flightNumber = flightNumberInput.value;
-        if (flightNumber) {
-            fetchLiveFlightData(flightNumber); // Chercher en temps réel par numéro de vol
-        } else {
-            flightStatusMessage.textContent = "Veuillez entrer un numéro de vol.";
-            flightStatusMessage.style.color = 'orange';
-        }
-    });
-}
-
-// Gestionnaire pour les DÉPARTS de Nantes (OpenSky)
-if (showNantesDeparturesBtn) {
-    showNantesDeparturesBtn.addEventListener('click', () => {
-        fetchOpenSkyAirportFlights('LFRS', 'departure', 7); // Code ICAO de Nantes Atlantique, 7 dernières heures
-        flightStatusMessage.textContent += " (Les vols futurs ne sont pas disponibles via OpenSky)";
-        flightStatusMessage.style.color = 'orange';
-    });
-}
-
-// Gestionnaire pour les ARRIVÉES à Nantes (OpenSky)
-if (showNantesArrivalsBtn) {
-    showNantesArrivalsBtn.addEventListener('click', () => {
-        fetchOpenSkyAirportFlights('LFRS', 'arrival', 24); // Code ICAO de Nantes Atlantique, 24 dernières heures
-        flightStatusMessage.textContent += " (Les vols futurs ne sont pas disponibles via OpenSky)";
-        flightStatusMessage.style.color = 'orange';
-    });
-}
-
-// Gestionnaire pour les DÉPARTS de Montréal (OpenSky)
-if (showMontrealDeparturesBtn) {
-    showMontrealDeparturesBtn.addEventListener('click', () => {
-        fetchOpenSkyAirportFlights('CYUL', 'departure', 7); // Code ICAO de Montréal-Trudeau, 7 dernières heures
-        flightStatusMessage.textContent += " (Les vols futurs ne sont pas disponibles via OpenSky)";
-        flightStatusMessage.style.color = 'orange';
-    });
-}
-
-// Gestionnaire pour les ARRIVÉES à Montréal (OpenSky)
-if (showMontrealArrivalsBtn) {
-    showMontrealArrivalsBtn.addEventListener('click', () => {
-        fetchOpenSkyAirportFlights('CYUL', 'arrival', 24); // Code ICAO de Montréal-Trudeau, 24 dernières heures
-        flightStatusMessage.textContent += " (Les vols futurs ne sont pas disponibles via OpenSky)";
-        flightStatusMessage.style.color = 'orange';
-    });
-}
-
-// --- Initialisation et boucles d'actualisation ---
-
-// Mettre à jour le compte à rebours, les heures, la barre de progression et les messages toutes les secondes
-const countdownInterval = setInterval(updateCountdown, 1000);
-setInterval(updateTimes, 1000);
-setInterval(updateProgressBar, 1000);
-setInterval(updateMessages, 1000);
-setInterval(updateTimeIcons, 1000);
-
-// Exécuter les mises à jour immédiatement au chargement de la page
+// --- Initialisation et gestionnaires d'événements ---
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Initialisation des éléments non-vol ---
     updateCountdown();
     updateTimes();
     updateProgressBar();
     updateMessages();
     updateTimeIcons();
-    loadQuizQuestions(); // Charger la première question du quiz au démarrage
-    displayRandomFunStat(); // Charger une statistique amusante au démarrage
-    displayDailyExpression(); // Charger l'expression du jour
+    loadQuizQuestions();
+    displayRandomFunStat();
+    displayDailyExpression();
 
-    // Au chargement, vous pouvez choisir d'afficher des vols par défaut
-    // Par exemple, pour montrer tous les vols en direct (OpenSky):
-    // fetchLiveFlightData();
+    // Démarrer les intervalles d'actualisation
+    const countdownInterval = setInterval(updateCountdown, 1000); // Déclare countdownInterval ici
+    setInterval(updateTimes, 1000);
+    setInterval(updateProgressBar, 1000);
+    setInterval(updateMessages, 1000);
+    setInterval(updateTimeIcons, 1000);
+
+
+    // --- Initialisation des éléments de suivi des vols ---
+    // Mettre à jour les en-têtes par défaut au chargement (pour les vols en direct)
+    updateFlightTableHeaders('live');
+
+
+    if (searchFlightBtn) {
+        searchFlightBtn.addEventListener('click', () => {
+            const callsign = flightCallsignInput.value.trim().toUpperCase();
+            if (callsign) {
+                searchLiveFlight(callsign);
+            } else {
+                showMessage(searchMessage, 'Veuillez entrer un indicatif d\'appel.', 'error');
+                clearFlightTable();
+            }
+        });
+    }
+
+    if (airportButtons) {
+        airportButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const icao = button.dataset.icao;
+                const type = button.dataset.type; // 'departure' ou 'arrival'
+                if (icao && type) {
+                    searchAirportLogs(icao, type);
+                }
+            });
+        });
+    }
+
+    if (nextQuestionButton) {
+        nextQuestionButton.addEventListener('click', () => {
+            displayRandomQuizQuestion();
+        });
+    }
+
+    if (nextExpressionBtn) {
+        nextExpressionBtn.addEventListener('click', () => {
+            displayDailyExpression();
+        });
+    }
+
+    // Afficher un message initial pour les vols
+    showMessage(searchMessage, "Entrez un indicatif d'appel ou choisissez un aéroport pour voir les vols.", 'info');
 });
-
-// Gérer le bouton "Question suivante" du quiz
-if (nextQuestionButton) {
-    nextQuestionButton.addEventListener('click', () => {
-        displayRandomQuizQuestion(); // Afficher une nouvelle question
-    });
-}
