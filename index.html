@@ -3,27 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compte à Rebours & Heures Mondiales</title>
+    <title>Mon événement - Compte à Rebours</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="container">
-    <h1>Compte à Rebours</h1>
-    <p>Il reste avant l'événement :</p>
-    <div class="countdown" id="countdown"></div>
-    <div id="progressBarContainer" style="width:100%;background:#ccc;height:20px;">
-        <div id="progressBar" style="height:100%;width:0;background:#4caf50;"></div>
+<header class="hero-section">
+    <div class="hero-content">
+        <h1>Compte à Rebours</h1>
+        <p>Il ne reste plus que :</p>
+        <div class="countdown" id="countdown"></div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p class="progress-text">Progression vers la date cible</p>
     </div>
-    <h2>Heures Actuelles</h2>
-    <div class="time-display" id="frenchTime"></div>
-    <div class="time-zone-label">Heure française (Paris)</div>
-    <div id="messageNantes"></div>
+</header>
 
-    <div class="time-display" id="canadianTime"></div>
-    <div class="time-zone-label">Heure Quebec (Montreal)</div>
-    <div id="messageMontreal"></div>
-</div>
+<main class="main-content">
+    <section class="time-zones-section">
+        <h2>Heures Locales</h2>
+        <div class="zone-cards-wrapper">
+            <div class="zone-card france" data-timezone="Europe/Paris">
+                <div class="zone-header">
+                    <i class="fas fa-city icon"></i>
+                    <h3 class="zone-name">Nantes, France</h3>
+                </div>
+                <div class="time-display" id="frenchTime"></div>
+                <p class="message" id="messageNantes"></p>
+                <div class="time-icon" id="nantesTimeIcon"></div>
+            </div>
 
-<script src="js/script.js"></script>
+            <div class="zone-card quebec" data-timezone="America/Montreal">
+                <div class="zone-header">
+                    <i class="fas fa-map-marker-alt icon"></i>
+                    <h3 class="zone-name">Montréal, Canada</h3>
+                </div>
+                <div class="time-display" id="canadianTime"></div>
+                <p class="message" id="messageMontreal"></p>
+                <div class="time-icon" id="montrealTimeIcon"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="daily-fact-section">
+        <h2>Le Fait du Jour</h2>
+        <div class="daily-fact-card">
+            <p id="dailyFactText">Chargement du fait du jour...</p>
+        </div>
+    </section>
+
+    <section class="fun-stats-section">
+        <h2>Statistique Amusante</h2>
+        <div class="fun-stats-card">
+            <p id="funStatText">Chargement d'une statistique...</p>
+        </div>
+    </section>
+
+    <section class="game-section">
+        <h2>Mini-jeu : Devinette Numérique</h2>
+        <p>Devine un nombre entre 1 et 10 :</p>
+        <div class="game-controls">
+            <input type="number" id="guessInput" min="1" max="10" placeholder="Ton chiffre">
+            <button onclick="checkGuess()">Valider</button>
+        </div>
+        <p class="game-result" id="guessResult"></p>
+    </section>
+</main>
+
+<footer class="footer">
+    <p>&copy; 2025 Mon Site Sympathique. Tous droits réservés.</p>
+</footer>
+
+<script src="js/main.js" type="module"></script>
 </body>
 </html>
